@@ -1,0 +1,16 @@
+# VSCode
+.history
+.launch
+
+# Nodejs
+node_modules
+\.vscode
+
+# Environment file
+.env
+
+# OpenZeppelin files
+.openzeppelin
+
+# Truffle
+build/contracts/**/*

@@ -1,0 +1,23 @@
+include:
+  - "/docs/.gitlab-ci.yml"
+  - project: blockchain/other/ci-includes
+    ref: master
+    file: /nodejs/npm.yml
+
+dependencies:
+  extends: .npm:install
+  tags:
+    - docker-blockchain
+
+test:
+  extends: .npm:cache-read
+  needs: ["dependencies"]
+  tags:
+    - docker-blockchain
+  script:
+    - npm test
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - contracts/**/*
+        - test/**/*

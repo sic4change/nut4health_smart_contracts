@@ -1,0 +1,21 @@
+site_name: Nut4Health
+site_description: Official documentation of Nut4Health
+# set root production url
+site_url: https://static.cybersec.digital.tecnalia.dev/public/docs/nut4health
+
+# Repository
+repo_name: nut4health
+repo_url: https://git.code.tecnalia.com/blockchain/nut4health
+
+# Copyright
+copyright: "Copyright &copy; 2022 Fundación Tecnalia Research & Innovation"
+
+theme:
+  name: mkdocs
+  locale: en
+
+docs_dir: build/md
+site_dir: build/site
+
+# Link directly to target files
+use_directory_urls: false

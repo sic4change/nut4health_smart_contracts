@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  nut4health-docs:
+    image: squidfunk/mkdocs-material:latest
+    container_name: nut4health-docs
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/docs

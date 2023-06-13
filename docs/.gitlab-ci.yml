@@ -1,0 +1,80 @@
+variables:
+  MINIO_REPO: "minio"
+  DOC_PATH: "public/docs/nut4health"
+  LOCAL_DOC_PATH: "docs"
+  STATIC_PATH: "docs/build/site"
+  MD_PATH: "docs/build/md"
+
+include:
+  - project: blockchain/other/ci-includes
+    ref: master
+    file: /minio/minio.yml
+
+doc:build-markdown:
+  image: all-docker-dev.artifact.tecnalia.com/node:18.10.0-alpine
+  extends: .npm:cache-read
+  needs: ["dependencies"]
+  tags:
+    - docker-blockchain
+  cache:
+    - !reference [".npm:cache-read", "cache"]
+    - key: mdDocs
+      paths:
+        - $MD_PATH
+  script:
+    - npm run docs-dirs
+    - npm run docs-md
+
+doc:build:
+  image:
+    name: all-docker-dev.artifact.tecnalia.com/squidfunk/mkdocs-material:latest
+    entrypoint: [""]
+  needs: ["doc:build-markdown"]
+  tags:
+    - docker-blockchain
+  cache:
+    - key: mdDocs
+      paths:
+        - $MD_PATH
+      policy: pull
+    - key: staticDoc
+      paths:
+        - $STATIC_PATH
+  script:
+    - cd $LOCAL_DOC_PATH
+    - mkdocs build
+  allow_failure: true
+
+doc:configure:
+  extends: .minio:configure
+  tags:
+    - docker-blockchain
+
+doc:clean:
+  extends: .minio:clean
+  needs: ["doc:configure"]
+  tags:
+    - docker-blockchain
+  variables:
+    CLEAR_PATH: $DOC_PATH
+  allow_failure: true
+
+doc:publish:
+  extends: .minio:publish
+  needs: ["doc:build", "doc:clean"]
+  tags:
+    - docker-blockchain
+  variables:
+    LOCAL_PATH: $STATIC_PATH
+    REMOTE_SUBPATH: $DOC_PATH
+  cache:
+    - !reference [".minio:publish", "cache"]
+    - key: staticDoc
+      paths:
+        - $STATIC_PATH
+      policy: pull
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - contracts/**/*
+        - docs/**/*
